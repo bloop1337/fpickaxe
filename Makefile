@@ -2,5 +2,5 @@
 
 
 
-all: main.c
-	cc -lraylib -Wall -Wextra main.c -o fpickaxe
+all: fpickaxe.c
+	cc -lraylib -Wall -Wextra fpickaxe.c -o fpickaxe
