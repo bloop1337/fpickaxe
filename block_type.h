@@ -10,7 +10,6 @@ typedef enum {
 	COAL_ORE      = 5,
 	DIAMOND_ORE   = 6,
 	NETHERITE_ORE = 7,
-	BEDROCK       = 8,
 } Block_Type;
 
 const int BLOCK_TYPE_DURABILITY[] = {
@@ -22,7 +21,6 @@ const int BLOCK_TYPE_DURABILITY[] = {
 	35, // COAL_ORE
 	40, // DIAMOND_ORE
 	50, // NETHERITE_ORE
-	-1, // BEDROCK
 };
 
 const int BLOCK_TYPE_WEIGHT[] = {
@@ -34,19 +32,17 @@ const int BLOCK_TYPE_WEIGHT[] = {
 	30, // COAL_ORE
 	5, // DIAMOND_ORE
 	1, // NETHERITE_ORE
-	0, // BEDROCK
 };
 
-const Color BLOCK_TYPE_COLORS[9] = {
-	GREEN,  // GRASS
-	BROWN,  // DIRT
-	GRAY, // STONE
-	GOLD, // GOLD_ORE
-	PINK, // IRON_ORE
-	BLACK, // COAL_ORE
-	SKYBLUE, // DIAMOND_ORE
-	WHITE, // NETHERITE_ORE
-	RAYWHITE, // BEDROCK
+static char* BLOCK_TYPE_IMGS[] = {
+	"./assets/grass.png",  // GRASS
+	"./assets/dirt.png",  // DIRT
+	"./assets/stone.png", // STONE
+	"./assets/gold_ore.png", // GOLD_ORE
+	"./assets/iron_ore.png", // IRON_ORE
+	"./assets/coal_ore.png", // COAL_ORE
+	"./assets/diamond_ore.png", // DIAMOND_ORE
+	"./assets/ancient_debris.png", // NETHERITE_ORE
 };
 
 

@@ -4,6 +4,7 @@
 #define WIDTH 800
 #define HEIGHT 600
 #define GRAVITY 0.3
+#define FORCE GRAVITY * 100
 
 #define BLOCK_SIZE 100
 #define BLOCK_COLS (WIDTH / BLOCK_SIZE)
@@ -17,7 +18,7 @@ typedef struct {
 	Rectangle hitbox;
 	int durability;	
 	Block_Type type;
-	Color color;
+	Texture2D texture;
 } Block;
 
 typedef struct {
@@ -48,19 +49,31 @@ static Block_Type random_block_type() {
 }
 
 
+void render_block_durability(Block* block) {
+	if (block->durability <= 0)
+		return;
+	
+	DrawRectangle(block->hitbox.x, block->hitbox.y, BLOCK_SIZE, BLOCK_SIZE/4, BLACK);
+}
+
 static void init_level(Level* level, const int leveln) {
 	const int height = 20 + leveln;
 	const int len = BLOCK_COLS*height;
 
 	Block* blocks = malloc(sizeof(Block) * len);
+	
 
+	Image img_grass = LoadImage(BLOCK_TYPE_IMGS[GRASS]);
+	ImageResizeNN(&img_grass, BLOCK_SIZE, BLOCK_SIZE);
+	Texture texture_grass = LoadTextureFromImage(img_grass);
 	// GRASS GENERATION
+	
 	for (int grass = 0; grass < BLOCK_COLS; ++grass) {
 		blocks[grass] = (Block){
 			.hitbox = (Rectangle){.x = grass*BLOCK_SIZE, .y = 300, .width = BLOCK_SIZE, .height = BLOCK_SIZE },
 			.durability = BLOCK_TYPE_DURABILITY[GRASS],
 			.type = GRASS,
-			.color = GREEN,
+			.texture = texture_grass,
 		};
 	}
 
@@ -70,13 +83,17 @@ static void init_level(Level* level, const int leveln) {
 	int dirt_row_counter = 0;
 	int dirt_col_counter = 1;
 
+	Image img_dirt = LoadImage(BLOCK_TYPE_IMGS[DIRT]);
+	ImageResizeNN(&img_dirt, BLOCK_SIZE, BLOCK_SIZE);
+	Texture texture_dirt = LoadTextureFromImage(img_dirt);
+	
 	// DIRT GENERATION
 	for (int dirt = BLOCK_COLS; dirt < dirt_blocks; dirt++) {
 		blocks[dirt] = (Block){		
 			.hitbox = (Rectangle){ .x = BLOCK_SIZE*dirt_row_counter, .y = 300 + (BLOCK_SIZE*dirt_col_counter), .width = BLOCK_SIZE, .height = BLOCK_SIZE },
 			.durability = BLOCK_TYPE_DURABILITY[DIRT],
 			.type = DIRT,
-			.color = BROWN,
+			.texture = texture_dirt,
 		};
 		dirt_row_counter++;	
 		if (dirt_row_counter == BLOCK_COLS) {
@@ -91,11 +108,14 @@ static void init_level(Level* level, const int leveln) {
 	
 	for (int i = dirt_blocks; i < len; ++i) {
 		Block_Type type = random_block_type();
+		Image img = LoadImage(BLOCK_TYPE_IMGS[type]);
+		ImageResizeNN(&img, BLOCK_SIZE, BLOCK_SIZE);
+		Texture2D block_texture = LoadTextureFromImage(img);
 		blocks[i] = (Block){		
 			.hitbox = (Rectangle){ .x = BLOCK_SIZE*row_counter, .y = 300 + (BLOCK_SIZE*col_counter), .width = BLOCK_SIZE, .height = BLOCK_SIZE },
 			.durability = BLOCK_TYPE_DURABILITY[type],
 			.type = type,
-			.color = BLOCK_TYPE_COLORS[type],
+			.texture = block_texture, 
 		};
 
 		row_counter++;	
@@ -126,8 +146,8 @@ static void draw_pickaxe(Pickaxe* pick, bool hitbox) {
 		DrawRectangleLinesEx(pick->hitbox, 5, RED);
 }
 
-static void draw_block(Block* block, bool hitbox) {	
-	DrawRectangleRec(block->hitbox, block->color);
+static void draw_block(Block* block, bool hitbox) {
+	DrawTexture(block->texture, block->hitbox.x, block->hitbox.y, WHITE);
 	if (hitbox)
 		DrawRectangleLinesEx(block->hitbox, 5, RED);
 }
@@ -145,17 +165,23 @@ static void update_pickaxe(Pickaxe* pick, Level* level, Camera2D *camera) {
 	for (int i = 0; i < level->width*level->height; ++i) {
 		if (CheckCollisionRecs(pick->hitbox, level->blocks[i].hitbox)) {
 			is_collide = true;
-			level->blocks[i] = (Block){0};
+			render_block_durability(&level->blocks[i]);
+
+			//level->blocks[i] = (Block){0};
 			break;
 		}
 	}
 	
-	if (!is_collide) {
-		pick->hitbox.y += pick->vel.y;
-		pick->hitbox.x += pick->vel.x;
+	if (is_collide) {
+		pick->vel.y = -GRAVITY * FORCE;
+		pick->vel.x = GetRandomValue(-2, 2);
 	}
-	camera->target.x = pick->hitbox.x + pick->hitbox.width / 2;
-	camera->target.y = pick->hitbox.y + pick->hitbox.height / 2;
+
+	pick->hitbox.y += pick->vel.y;
+	pick->hitbox.x += pick->vel.x;
+
+	camera->target.y = pick->hitbox.y + pick->hitbox.height / 2;	
+	camera->target.x = WIDTH / 2;
 }
 
 
@@ -181,11 +207,12 @@ int main(void) {
 
 			ClearBackground(BLUE);
 
-			update_pickaxe(&pickaxe, &level, &camera);
 				BeginMode2D(camera);
 					draw_level(&level, false);
 					draw_pickaxe(&pickaxe, true);
 				EndMode2D();
+
+			update_pickaxe(&pickaxe, &level, &camera);
 
 		EndDrawing();
 	}
