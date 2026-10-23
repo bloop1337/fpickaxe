@@ -1,5 +1,4 @@
 #pragma once
-#include <raylib.h>
 
 typedef enum {
 	GRASS         = 0,
@@ -34,6 +33,16 @@ const int BLOCK_TYPE_WEIGHT[] = {
 	1, // NETHERITE_ORE
 };
 
+const int BLOCK_TYPE_POINTS[] = {
+	1, // GRASS
+	1, // DIRT
+	2, // STONE
+	3, // GOLD_ORE
+	3, // IRON_ORE
+	3, // COAL_ORE
+	10, // DIAMOND_ORE
+	30, // NETHERITE_ORE
+};
 static char* BLOCK_TYPE_IMGS[] = {
 	"./assets/grass.png",  // GRASS
 	"./assets/dirt.png",  // DIRT
