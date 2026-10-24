@@ -20,7 +20,7 @@
 #include "block_type.h"
 #include "pickaxe_type.h"
 
-#define WIDTH 500
+#define WIDTH 1100
 #define HEIGHT 800
 #define GRAVITY 0.3
 #define FORCE GRAVITY * 100
@@ -268,8 +268,8 @@ int main(void) {
 					draw_level(&level, false);
 					draw_pickaxe(&pickaxe, false);
 				EndMode2D();
-				DrawText(TextFormat("%d", player_points), WIDTH / 2, 0, 100, WHITE);
-
+				const char* text = TextFormat("%d", player_points);
+				DrawText(text, WIDTH / 2 - MeasureText(text, 100) / 2, 0, 100, WHITE);
 				if (!update_state(&pickaxe, &level, &camera, &player_points))
 					break; // game over
 
